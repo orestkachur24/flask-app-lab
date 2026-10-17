@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} — товар{% endblock %}
+
+{% block content %}
+<article class="product-detail">
+    <a class="back-link" href="{{ url_for('products.index') }}">← До каталогу</a>
+    <p class="eyebrow">Товар #{{ product.id }}</p>
+    <h1>{{ product.name }}</h1>
+    <p class="detail-price">${{ product.price }}</p>
+    <p class="detail-description">{{ product.content }}</p>
+</article>
+{% endblock %}
