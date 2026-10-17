@@ -1,0 +1,97 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<header class="resume-header text-center mb-5">
+    <img
+        src="{{ url_for('static', filename='images/photo.png') }}"
+        alt="Фото для резюме"
+        class="profile-photo mb-3"
+    >
+
+    <h1>{{ name }}</h1>
+    <p class="lead">{{ profession }}</p>
+
+    <a href="{{ url_for('contacts') }}" class="btn btn-primary mt-2">
+        Зв'язатися зі мною
+    </a>
+</header>
+
+<nav class="section-nav mb-5" aria-label="Навігація резюме">
+    <a href="#about">Про себе</a>
+    <a href="#education">Освіта</a>
+    <a href="#skills">Навички</a>
+    <a href="#technologies">Технології</a>
+    <a href="#experience">Досвід та проєкти</a>
+</nav>
+
+<div class="resume-content">
+
+    <section id="about" class="resume-section">
+        <h2>Про себе</h2>
+        <p>
+            Я Качур Орест , початківець у сфері веб програмування, цікавлюся
+            розробкою вебзастосунків, створенням ігор та
+            вивченням сучасних технологій.
+            Постійно вдосконалюю свої навички та працюю
+            над навчальними проєктами.
+        </p>
+    </section>
+
+    <section id="education" class="resume-section">
+        <h2>Освіта</h2>
+        <p><strong>Навчальний заклад:</strong> КНУ</p>
+        <p><strong>Спеціальність:</strong> Інженерія програмного забезпечення</p>
+        <p><strong>Статус:</strong> студент</p>
+    </section>
+
+    <section id="skills" class="resume-section">
+        <h2>Навички</h2>
+        <ul>
+            <li>Алгоритмічне мислення та розв'язання задач</li>
+            <li>Робота з Git та GitHub</li>
+            <li>Основи веброзробки</li>
+            <li>Робота з документацією та пошук рішень</li>
+        </ul>
+    </section>
+
+    <section id="technologies" class="resume-section">
+        <h2>Технології</h2>
+        <div class="technology-list">
+            <span class="technology-badge">Python</span>
+            <span class="technology-badge">Flask</span>
+            <span class="technology-badge">HTML5</span>
+            <span class="technology-badge">CSS3</span>
+            <span class="technology-badge">Bootstrap</span>
+            <span class="technology-badge">Git</span>
+            <span class="technology-badge">C#</span>
+            <span class="technology-badge">Unity</span>
+        </div>
+    </section>
+
+    <section id="experience" class="resume-section">
+        <h2>Досвід роботи та проєкти</h2>
+
+        <article class="project-card">
+            <h3>Вебзастосунок на Flask</h3>
+            <p>
+                Навчальний вебзастосунок, створений за допомогою
+                Python і Flask та розгорнутий на платформі Render.
+            </p>
+            <p><strong>Технології:</strong> Python, Flask, HTML, Git</p>
+        </article>
+
+        <article class="project-card">
+            <h3>Ігрові проєкти на Unity</h3>
+            <p>
+                Розробка ігрової логіки, керування об'єктами
+                та користувацького інтерфейсу.
+            </p>
+            <p><strong>Технології:</strong> C#, Unity</p>
+        </article>
+    </section>
+
+</div>
+
+{% endblock %}
