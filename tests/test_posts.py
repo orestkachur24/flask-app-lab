@@ -2,6 +2,8 @@ import unittest
 
 from app import create_app, db
 from app.posts.models import Post
+from app.posts.tags import Tag
+from app.users.models import User
 
 
 class PostsCrudTestCase(unittest.TestCase):
@@ -10,6 +12,10 @@ class PostsCrudTestCase(unittest.TestCase):
         self.client = self.app.test_client()
         with self.app.app_context():
             db.create_all()
+            user = User(username="tester", email="tester@example.com", password="test-hash")
+            tag = Tag(name="test-tag")
+            db.session.add_all([user, tag])
+            db.session.commit()
 
     def tearDown(self):
         with self.app.app_context():
@@ -18,7 +24,8 @@ class PostsCrudTestCase(unittest.TestCase):
 
     @staticmethod
     def post_data(title="Мій перший пост", content="Це достатньо довгий текст для нового поста."):
-        return {"title": title, "content": content, "enabled": "y", "category": "news", "publish_date": "2026-11-21T12:30"}
+        return {"title": title, "content": content, "enabled": "y", "category": "news",
+                "publish_date": "2026-11-21T12:30", "author_id": "1", "tags": ["1"]}
 
     def create_post(self):
         response = self.client.post("/post/create", data=self.post_data())
@@ -31,15 +38,9 @@ class PostsCrudTestCase(unittest.TestCase):
         with self.app.app_context():
             post = db.session.get(Post, 1)
             self.assertEqual(post.title, "Мій перший пост")
-            self.assertEqual(post.author, "Anonymous")
+            self.assertEqual(post.user.username, "tester")
             self.assertEqual(post.category.value, "news")
-
-    def test_logged_in_user_becomes_author(self):
-        with self.client.session_transaction() as user_session:
-            user_session["username"] = "Orest"
-        self.create_post()
-        with self.app.app_context():
-            self.assertEqual(db.session.get(Post, 1).author, "Orest")
+            self.assertEqual([tag.name for tag in post.tags], ["test-tag"])
 
     def test_invalid_post_is_not_saved(self):
         response = self.client.post("/post/create", data=self.post_data("Hi", "Tiny"))
@@ -74,6 +75,14 @@ class PostsCrudTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         with self.app.app_context():
             self.assertEqual(db.session.get(Post, 1).title, "Оновлений заголовок")
+
+    def test_post_author_and_tags_relationships(self):
+        self.create_post()
+        with self.app.app_context():
+            user = db.session.get(User, 1)
+            tag = db.session.get(Tag, 1)
+            self.assertEqual([post.title for post in user.posts], ["Мій перший пост"])
+            self.assertEqual([post.title for post in tag.posts], ["Мій перший пост"])
 
     def test_delete_post(self):
         self.create_post()

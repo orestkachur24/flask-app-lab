@@ -1,27 +1,40 @@
 from datetime import datetime
 
-from flask import abort, flash, redirect, render_template, request, session, url_for
+from flask import abort, flash, redirect, render_template, request, url_for
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload, selectinload
 
 from .. import db
 from . import posts_bp
 from .forms import PostForm
-from .models import Post, PostCategory
+from .models import Post, PostCategory, Tag
+from ..users.models import User
+
+
+def configure_choices(form):
+    users = db.session.scalars(select(User).order_by(User.id)).all()
+    tags = db.session.scalars(select(Tag).order_by(Tag.name)).all()
+    form.author_id.choices = [(user.id, user.username) for user in users]
+    form.tags.choices = [(tag.id, tag.name) for tag in tags]
 
 
 @posts_bp.get("")
 def list_posts():
-    posts = db.session.scalars(select(Post).where(Post.is_active.is_(True)).order_by(Post.posted.desc(), Post.id.desc())).all()
+    stmt = (select(Post).options(joinedload(Post.user), selectinload(Post.tags))
+            .where(Post.is_active.is_(True)).order_by(Post.posted.desc(), Post.id.desc()))
+    posts = db.session.scalars(stmt).unique().all()
     return render_template("posts/all_posts.html", posts=posts)
 
 
 @posts_bp.route("/create", methods=["GET", "POST"])
 def create_post():
     form = PostForm()
+    configure_choices(form)
     if form.validate_on_submit():
         post = Post(title=form.title.data.strip(), content=form.content.data.strip(),
                     is_active=form.enabled.data, posted=form.publish_date.data or datetime.utcnow(),
-                    category=PostCategory(form.category.data), author=session.get("username", "Anonymous")[:20])
+                    category=PostCategory(form.category.data), user_id=form.author_id.data,
+                    tags=db.session.scalars(select(Tag).where(Tag.id.in_(form.tags.data))).all() if form.tags.data else [])
         db.session.add(post)
         db.session.commit()
         flash("Пост створено.", "success")
@@ -31,7 +44,7 @@ def create_post():
 
 @posts_bp.get("/<int:post_id>")
 def detail_post(post_id):
-    post = db.session.get(Post, post_id)
+    post = db.session.scalar(select(Post).options(joinedload(Post.user), selectinload(Post.tags)).where(Post.id == post_id))
     if post is None:
         abort(404)
     return render_template("posts/detail_post.html", post=post)
@@ -43,18 +56,23 @@ def update_post(post_id):
     if post is None:
         abort(404)
     form = PostForm()
+    configure_choices(form)
     if not form.is_submitted():
         form.title.data = post.title
         form.content.data = post.content
         form.enabled.data = post.is_active
         form.publish_date.data = post.posted
         form.category.data = post.category.value
+        form.author_id.data = post.user_id
+        form.tags.data = [tag.id for tag in post.tags]
     if form.validate_on_submit():
         post.title = form.title.data.strip()
         post.content = form.content.data.strip()
         post.is_active = form.enabled.data
         post.posted = form.publish_date.data or post.posted
         post.category = PostCategory(form.category.data)
+        post.user_id = form.author_id.data
+        post.tags = db.session.scalars(select(Tag).where(Tag.id.in_(form.tags.data))).all() if form.tags.data else []
         db.session.commit()
         flash("Пост оновлено.", "success")
         return redirect(url_for("posts.detail_post", post_id=post.id))

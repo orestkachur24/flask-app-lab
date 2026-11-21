@@ -1,4 +1,4 @@
 {% extends "base.html" %}
 {% from "macros/form_macros.html" import render_field %}
 {% block title %}{{ heading }}{% endblock %}
-{% block content %}<section class="container py-4"><div class="post-form card"><div class="card-body"><h1>{{ heading }}</h1><form method="post">{{ form.hidden_tag() }}{{ render_field(form.title) }}{{ render_field(form.content, rows=10) }}{{ render_field(form.enabled) }}{{ render_field(form.publish_date) }}{{ render_field(form.category) }}{{ form.submit(class_="btn btn-primary") }}</form></div></div></section>{% endblock %}
+{% block content %}<section class="container py-4"><div class="post-form card"><div class="card-body"><h1>{{ heading }}</h1><form method="post">{{ form.hidden_tag() }}{{ render_field(form.title) }}{{ render_field(form.content, rows=10) }}{{ render_field(form.enabled) }}{{ render_field(form.publish_date) }}{{ render_field(form.category) }}{{ render_field(form.author_id) }}{{ render_field(form.tags) }}{{ form.submit(class_="btn btn-primary") }}</form></div></div></section>{% endblock %}
