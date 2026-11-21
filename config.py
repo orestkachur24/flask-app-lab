@@ -1,2 +1,4 @@
 DEBUG = True
 SECRET_KEY = "lab3-secret-key"
+SQLALCHEMY_DATABASE_URI = "sqlite:///lab7.sqlite"
+SQLALCHEMY_TRACK_MODIFICATIONS = False
