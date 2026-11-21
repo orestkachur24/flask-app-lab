@@ -1,31 +1,31 @@
 import logging
 from pathlib import Path
 
-from flask import flash, redirect, render_template, request, url_for
-from . import app
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from .forms import ContactForm
 
-CONTACT_LOG = Path(app.root_path) / "data" / "contacts.log"
+site_bp = Blueprint("site", __name__)
+CONTACT_LOG = Path(__file__).resolve().parent / "data" / "contacts.log"
 
 
-@app.route("/")
+@site_bp.route("/")
 def main():
     return render_template("index.html")
 
 
-@app.route("/homepage")
+@site_bp.route("/homepage")
 def home():
     agent = request.user_agent.string
     return render_template("homepage.html", agent=agent)
 
 
-@app.route("/resume")
+@site_bp.route("/resume")
 def resume():
     return render_template("resume.html", name="Орест Качур", profession="Студент та веброзробник")
 
 
-@app.route("/contact", methods=["GET", "POST"])
-@app.route("/contacts", methods=["GET", "POST"])
+@site_bp.route("/contact", methods=["GET", "POST"])
+@site_bp.route("/contacts", methods=["GET", "POST"])
 def contacts():
     form = ContactForm()
     if form.validate_on_submit():
@@ -41,7 +41,7 @@ def contacts():
             logger.info("%s", form.data_for_log())
             flash("Повідомлення успішно записано.", "success")
         except OSError:
-            app.logger.exception("Could not write contact submission")
+            logging.exception("Could not write contact submission")
             flash("Не вдалося записати повідомлення. Спробуйте ще раз.", "error")
-        return redirect(url_for("contacts"))
+        return redirect(url_for("site.contacts"))
     return render_template("contacts.html", form=form)

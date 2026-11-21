@@ -1,0 +1,6 @@
+{% macro render_field(field, rows=none) %}
+<div class="mb-3">{{ field.label(class_="form-label") }}
+{% if field.type == 'BooleanField' %}{{ field(class_="form-check-input ms-2") }}
+{% elif rows %}{{ field(class_="form-control", rows=rows) }}{% else %}{{ field(class_="form-control") }}{% endif %}
+{% for error in field.errors %}<div class="text-danger small" role="alert">{{ error }}</div>{% endfor %}</div>
+{% endmacro %}

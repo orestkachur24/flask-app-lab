@@ -1,15 +1,49 @@
-from flask import Flask
+import os
+
+from flask import Flask, render_template
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
+from sqlalchemy.orm import DeclarativeBase
 
-app = Flask(__name__)
-app.config.from_pyfile("../config.py")
-app.config.setdefault("MAX_CONTENT_LENGTH", 5 * 1024 * 1024)
-app.config.setdefault("UPLOAD_FOLDER", "")
-csrf = CSRFProtect(app)
 
-from . import views
-from .users import users_bp
-from .products import products_bp
+class Base(DeclarativeBase):
+    pass
 
-app.register_blueprint(users_bp)
-app.register_blueprint(products_bp)
+
+db = SQLAlchemy(model_class=Base)
+migrate = Migrate()
+csrf = CSRFProtect()
+CONFIGS = {
+    "development": "app.config.DevelopmentConfig",
+    "testing": "app.config.TestingConfig",
+    "production": "app.config.ProductionConfig",
+}
+
+
+def create_app(config_name=None):
+    app = Flask(__name__, instance_relative_config=True)
+    selected = (config_name or os.getenv("FLASK_CONFIG", "development")).lower()
+    app.config.from_object(CONFIGS.get(selected, CONFIGS["development"]))
+    os.makedirs(app.instance_path, exist_ok=True)
+    db.init_app(app)
+    migrate.init_app(app, db)
+    csrf.init_app(app)
+    from . import models  # noqa: F401
+    from .views import site_bp
+    from .users import users_bp
+    from .products import products_bp
+    from .posts import posts_bp
+    app.register_blueprint(site_bp)
+    app.register_blueprint(users_bp)
+    app.register_blueprint(products_bp)
+    app.register_blueprint(posts_bp)
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return render_template("404.html"), 404
+
+    return app
+
+
+app = create_app(os.getenv("FLASK_CONFIG", "development"))

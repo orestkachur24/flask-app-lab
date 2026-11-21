@@ -16,7 +16,7 @@
         <section class="contact-card">
             <h2 class="mb-4">Форма зворотного зв'язку</h2>
 
-            <form method="POST" action="{{ url_for('contacts') }}" class="form-stack">
+            <form method="POST" action="{{ url_for('site.contacts') }}" class="form-stack">
                 {{ form.hidden_tag() }}
                 {% from "_forms.html" import render_field %}
                 {{ render_field(form.name) }}
