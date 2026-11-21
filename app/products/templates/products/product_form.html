@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "_forms.html" import render_field %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <h1>{{ title }}</h1>
+  <form method="POST" enctype="multipart/form-data" class="form-stack">
+    {{ form.hidden_tag() }}
+    {{ render_field(form.name) }}
+    {{ render_field(form.content, rows=5, cols=40) }}
+    {{ render_field(form.price) }}
+    {{ render_field(form.category) }}
+    {{ render_field(form.quantity) }}
+    {{ render_field(form.image) }}
+    {% if product and product.image %}<p>Поточне зображення: <img class="product-image" src="{{ url_for('products.uploaded_file', filename=product.image|replace('uploads/', '')) }}" alt="{{ product.name }}"></p>{% endif %}
+    {{ form.submit(class_="button") }}
+  </form>
+</section>
+{% endblock %}

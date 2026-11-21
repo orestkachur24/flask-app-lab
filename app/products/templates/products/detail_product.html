@@ -7,7 +7,15 @@
     <a class="back-link" href="{{ url_for('products.index') }}">← До каталогу</a>
     <p class="eyebrow">Товар #{{ product.id }}</p>
     <h1>{{ product.name }}</h1>
-    <p class="detail-price">${{ product.price }}</p>
+    {% if product.image %}<img class="product-image" src="{{ url_for('products.uploaded_file', filename=product.image|replace('uploads/', '')) }}" alt="{{ product.name }}">{% endif %}
+    <p class="detail-price">₴{{ product.price }}</p>
+    <p>Категорія: {{ product.category }} · Кількість: {{ product.quantity }}</p>
+    <p>Додано: {{ product.created_at }}</p>
     <p class="detail-description">{{ product.content }}</p>
+    <p><a class="button" href="{{ url_for('products.edit', product_id=product.id) }}">Редагувати</a></p>
+    <form method="POST" action="{{ url_for('products.delete', product_id=product.id) }}" onsubmit="return confirm('Видалити цей товар?')">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="button button-danger" type="submit">Видалити</button>
+    </form>
 </article>
 {% endblock %}

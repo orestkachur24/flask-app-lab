@@ -7,6 +7,7 @@
         <p class="eyebrow">Blueprint products</p>
         <h1>Каталог товарів</h1>
         <p>Оберіть товар, щоб переглянути його характеристики.</p>
+        <a class="button" href="{{ url_for('products.add') }}">Додати товар</a>
     </section>
 
     <section class="product-grid" aria-label="Список товарів">
@@ -14,9 +15,11 @@
             <article class="product-card">
                 <span class="product-number">#{{ product.id }}</span>
                 <h2>{{ product.name }}</h2>
+                {% if product.image %}<img class="product-image" src="{{ url_for('products.uploaded_file', filename=product.image|replace('uploads/', '')) }}" alt="{{ product.name }}">{% endif %}
+                <p>Категорія: {{ product.category }} · Кількість: {{ product.quantity }}</p>
                 <p class="product-description">{{ product.content }}</p>
                 <div class="product-card-footer">
-                    <strong>${{ product.price }}</strong>
+                    <strong>₴{{ product.price }}</strong>
                     <a class="button" href="{{ url_for('products.detail', product_id=product.id) }}">Детальніше</a>
                 </div>
             </article>
