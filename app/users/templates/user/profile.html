@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Профіль{% endblock %}
+{% block content %}
+<section class="profile-panel theme-{{ theme }}">
+    <div class="profile-top">
+        <div><p class="eyebrow">Особистий кабінет</p><h1>Вітаємо, {{ username }}!</h1></div>
+        <form method="post" action="{{ url_for('users.logout') }}"><button class="button button-secondary" type="submit">Вийти</button></form>
+    </div>
+    <section class="profile-section">
+        <h2>Колірна схема</h2>
+        <a class="button" href="{{ url_for('users.profile_theme', theme='light') }}">Світла</a>
+        <a class="button button-secondary" href="{{ url_for('users.profile_theme', theme='dark') }}">Темна</a>
+    </section>
+    <section class="profile-section">
+        <h2>Додати cookie</h2>
+        <form method="post" class="form-grid">
+            <input type="hidden" name="action" value="add">
+            <label>Ключ<input name="key" required></label>
+            <label>Значення<input name="value" required></label>
+            <label>Термін дії (днів)<input type="number" name="days" value="30" min="0"></label>
+            <button class="button" type="submit">Додати</button>
+        </form>
+    </section>
+    <section class="profile-section">
+        <h2>Збережені cookie</h2>
+        {% if cookies %}
+        <div class="table-scroll"><table><thead><tr><th>Ключ</th><th>Значення</th></tr></thead><tbody>
+        {% for key, value in cookies.items() %}<tr><td>{{ key }}</td><td>{{ value }}</td></tr>{% endfor %}
+        </tbody></table></div>
+        {% else %}<p>Cookie поки немає.</p>{% endif %}
+        <form method="post" class="form-grid cookie-actions">
+            <label>Ключ для видалення<input name="key"></label>
+            <button class="button" name="action" value="delete_one">Видалити за ключем</button>
+            <button class="button button-danger" name="action" value="delete_all">Видалити всі</button>
+        </form>
+    </section>
+</section>
+{% endblock %}

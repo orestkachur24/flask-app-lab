@@ -15,7 +15,10 @@
 
             <a href="{{ url_for('main') }}">Головна</a>
             <a href="{{ url_for('home') }}">Homepage</a>
+            <a href="{{ url_for('resume') }}">Резюме</a>
             <a href="{{ url_for('users.greetings', name='John', age=30) }}">Користувачі</a>
+            <a href="{{ url_for('users.profile') }}">Профіль</a>
+            <a href="{{ url_for('users.login') }}">Вхід</a>
             <a href="{{ url_for('products.index') }}">Товари</a>
 
         </nav>
@@ -23,6 +26,15 @@
     </header>
 
     <main class="page-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages" role="status" aria-live="polite">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
         {% block content %}{% endblock %}
     </main>
 

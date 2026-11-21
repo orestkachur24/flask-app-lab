@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Вхід{% endblock %}
+{% block content %}
+<section class="auth-card">
+    <p class="eyebrow">Обліковий запис</p>
+    <h1>Вхід</h1>
+    <form method="post" class="form-stack">
+        <label>Ім’я користувача<input name="username" autocomplete="username" required></label>
+        <label>Пароль<input type="password" name="password" autocomplete="current-password" required></label>
+        <button class="button" type="submit">Увійти</button>
+    </form>
+    <p class="hint">Демо-доступ: student / flask123</p>
+</section>
+{% endblock %}
