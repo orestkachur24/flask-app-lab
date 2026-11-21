@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Користувачі{% endblock %}
+{% block content %}
+<section class="auth-card users-card">
+    <p class="eyebrow">Облікові записи</p>
+    <h1>Користувачі <span class="user-count">{{ count }}</span></h1>
+    {% if users %}
+    <ul class="user-list">
+        {% for user in users %}<li><strong>{{ user.username }}</strong><span>{{ user.email }}</span></li>{% endfor %}
+    </ul>
+    {% else %}<p>Зареєстрованих користувачів поки немає.</p>{% endif %}
+</section>
+{% endblock %}

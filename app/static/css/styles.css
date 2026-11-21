@@ -40,6 +40,7 @@ h2 { margin-bottom: 10px; }
 .flash-success { color: #14532d; background: #dcfce7; }
 .flash-error { color: #991b1b; background: #fee2e2; }
 .flash-info { color: #1e40af; background: #dbeafe; }
+.flash-warning { color: #854d0e; background: #fef3c7; }
 .auth-card, .profile-panel { max-width: 850px; margin: 0 auto; padding: clamp(24px, 5vw, 44px); background: #fff; border: 1px solid #e3e9f4; border-radius: 18px; box-shadow: 0 14px 35px #1720330c; }
 .auth-card { max-width: 520px; }
 .form-stack, .form-grid { display: grid; gap: 16px; }
@@ -52,6 +53,16 @@ h2 { margin-bottom: 10px; }
 input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }
 .form-stack .button, .form-grid .button { border: 0; cursor: pointer; justify-self: start; }
 .hint { margin: 20px 0 0; color: #64748b; font-size: .92rem; }
+.nav-logout { display: inline-flex; margin: 0; }
+.nav-logout button { border: 0; padding: 8px 11px; border-radius: 7px; color: #dce6f7; background: transparent; font: inherit; cursor: pointer; }
+.nav-logout button:hover { color: #fff; background: #ffffff1c; }
+.account-details { display: grid; grid-template-columns: 160px 1fr; gap: 10px 16px; margin: 28px 0; }
+.account-details dt { color: #64748b; font-weight: 700; }
+.account-details dd { margin: 0; overflow-wrap: anywhere; }
+.user-count { display: inline-grid; place-items: center; min-width: 38px; padding: 4px 9px; border-radius: 999px; color: #5144bd; background: #eeebff; font-size: 1rem; vertical-align: middle; }
+.user-list { margin: 24px 0 0; padding: 0; list-style: none; }
+.user-list li { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid #e3e9f4; }
+.user-list li span { color: #64748b; overflow-wrap: anywhere; }
 .profile-top { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .profile-section { margin-top: 30px; padding-top: 24px; border-top: 1px solid #e3e9f4; }
 .profile-section h2 { margin-bottom: 16px; }

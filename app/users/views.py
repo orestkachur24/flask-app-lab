@@ -1,31 +1,81 @@
+from flask import current_app, flash, make_response, redirect, render_template, request, url_for
+from flask_login import current_user, login_required, login_user, logout_user
+from sqlalchemy import or_, select
+from sqlalchemy.exc import SQLAlchemyError
 
-from flask import render_template, request, redirect, url_for, session, flash, make_response
+from .. import db
 from . import users_bp
+from .forms import LoginForm, RegistrationForm
+from .models import User
 
-DEMO_USERNAME = "student"
-DEMO_PASSWORD = "flask123"
+
+@users_bp.route("/register", methods=["GET", "POST"])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for("users.account"))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data.strip(), email=form.email.data.strip().lower())
+        user.set_password(form.password.data)
+        try:
+            db.session.add(user)
+            db.session.commit()
+            login_user(user)
+            flash("Реєстрація успішна. Ви увійшли в систему.", "success")
+            return redirect(url_for("users.account"))
+        except SQLAlchemyError:
+            db.session.rollback()
+            current_app.logger.exception("Could not register user")
+            flash("Не вдалося зберегти користувача. Спробуйте ще раз.", "error")
+    return render_template("user/register.html", form=form)
 
 
 @users_bp.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        password = request.form.get("password", "")
-        if username == DEMO_USERNAME and password == DEMO_PASSWORD:
-            session["username"] = username
-            flash("Вхід успішний. Вітаємо!", "success")
-            return redirect(url_for("users.profile"))
-        flash("Неправильне ім’я користувача або пароль.", "error")
-    return render_template("user/login.html")
+    if current_user.is_authenticated:
+        return redirect(url_for("users.account"))
+    form = LoginForm()
+    if form.validate_on_submit():
+        identity = form.username.data.strip()
+        user = db.session.execute(
+            select(User).where(or_(User.username == identity, User.email == identity.lower()))
+        ).scalar_one_or_none()
+        if user and user.check_password(form.password.data):
+            # Upgrade passwords made by Lab8's Werkzeug hash to Bcrypt after successful login.
+            if user.password.startswith(("scrypt:", "pbkdf2:")):
+                user.set_password(form.password.data)
+                db.session.commit()
+            login_user(user)
+            flash(f"Вітаємо, {user.username}! Вхід успішний.", "success")
+            return redirect(url_for("users.account"))
+        flash("Неправильне ім’я користувача/email або пароль.", "error")
+    return render_template("user/login.html", form=form)
+
+
+@users_bp.route("/account")
+@login_required
+def account():
+    return render_template("user/account.html", user=current_user)
+
+
+@users_bp.route("/all")
+@login_required
+def all_users():
+    users = db.session.scalars(select(User).order_by(User.id)).all()
+    return render_template("user/all_users.html", users=users, count=len(users))
+
+
+@users_bp.route("/logout", methods=["POST"])
+@login_required
+def logout():
+    logout_user()
+    flash("Ви успішно вийшли із системи.", "info")
+    return redirect(url_for("users.login"))
 
 
 @users_bp.route("/profile", methods=["GET", "POST"])
+@login_required
 def profile():
-    username = session.get("username")
-    if not username:
-        flash("Спочатку увійдіть у систему.", "error")
-        return redirect(url_for("users.login"))
-
     if request.method == "POST":
         action = request.form.get("action")
         key = request.form.get("key", "").strip()
@@ -58,22 +108,13 @@ def profile():
             return response
 
     cookies = {key: value for key, value in request.cookies.items() if key != "session"}
-    return render_template("user/profile.html", username=username, cookies=cookies,
+    return render_template("user/profile.html", username=current_user.username, cookies=cookies,
                            theme=request.cookies.get("profile_theme", "light"))
 
 
-@users_bp.route("/logout", methods=["POST"])
-def logout():
-    session.pop("username", None)
-    flash("Ви вийшли із системи.", "info")
-    return redirect(url_for("users.login"))
-
-
 @users_bp.route("/profile/theme/<theme>")
+@login_required
 def profile_theme(theme):
-    if "username" not in session:
-        flash("Спочатку увійдіть у систему.", "error")
-        return redirect(url_for("users.login"))
     if theme not in {"light", "dark"}:
         theme = "light"
     response = make_response(redirect(url_for("users.profile")))
@@ -86,7 +127,6 @@ def profile_theme(theme):
 def greetings(name):
     name = name.upper()
     age = request.args.get("age", default=None, type=int)
-
     return render_template("user/hi.html", name=name, age=age)
 
 

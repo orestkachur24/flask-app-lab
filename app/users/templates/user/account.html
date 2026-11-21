@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Профіль{% endblock %}
+{% block content %}
+<section class="auth-card account-card">
+    <p class="eyebrow">Особистий кабінет</p>
+    <h1>Вітаємо, {{ user.username }}!</h1>
+    <dl class="account-details">
+        <dt>Ім’я користувача</dt><dd>{{ user.username }}</dd>
+        <dt>Email</dt><dd>{{ user.email }}</dd>
+        <dt>ID</dt><dd>{{ user.id }}</dd>
+    </dl>
+    <a class="button" href="{{ url_for('users.all_users') }}">Список користувачів</a>
+    <a class="button button-secondary" href="{{ url_for('users.profile') }}">Налаштування cookie</a>
+</section>
+{% endblock %}

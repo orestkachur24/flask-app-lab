@@ -2,6 +2,8 @@ import os
 
 from flask import Flask, render_template
 from flask_migrate import Migrate
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy.orm import DeclarativeBase
@@ -14,6 +16,8 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 migrate = Migrate()
 csrf = CSRFProtect()
+bcrypt = Bcrypt()
+login_manager = LoginManager()
 CONFIGS = {
     "development": "app.config.DevelopmentConfig",
     "testing": "app.config.TestingConfig",
@@ -29,6 +33,11 @@ def create_app(config_name=None):
     db.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
+    bcrypt.init_app(app)
+    login_manager.init_app(app)
+    login_manager.login_view = "users.login"
+    login_manager.login_message = "Увійдіть, щоб отримати доступ до цієї сторінки."
+    login_manager.login_message_category = "warning"
     from . import models  # noqa: F401
     from .views import site_bp
     from .users import users_bp
